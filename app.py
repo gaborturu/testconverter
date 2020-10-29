@@ -110,7 +110,7 @@ with head2:
 col1, col2 = st.beta_columns([6,6])
 
 with col1:
-    st.header("Paste your text here:")
+    st.header("Paste / write your questions here:")
     input = st.text_area(label = '', value="Which of the following numbers are prime numbers? (Example question, replace it with your questions)\n#3\n4\n12\n#17", height= 300)
 
     button = st.button("Convert to GIFT!")
