@@ -1,5 +1,5 @@
 ==================
-This converter converts raw text to gift-formatted test questions which can be imported into moodle. The application can be run on a server and will be published on port 6123.
+This converter converts raw text to gift-formatted test questions which can be imported into moodle. The application can be run on a server and will be published on port 8501.
 
 At this point, only multiple-choice questions are supported.
 
