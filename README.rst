@@ -23,3 +23,16 @@ Which of the following numbers are not prime numbers?
 #4
 #12
 17
+
+
+To run the application:
+
+docker build -f Dockerfile -t converter .
+
+docker run -d -p 8501:8501 --name converter converter
+
+or:
+
+docker run --name converter converter
+
+.. and find the app on your local container's ip address, e.g. 172.17.0.2:8501
