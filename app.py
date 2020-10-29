@@ -1,6 +1,8 @@
 import streamlit as st
 import base64
 import re
+from streamlit_ace import st_ace
+import json
 
 st.set_page_config(page_title= "Test converter", layout='wide')
 
@@ -15,7 +17,7 @@ def download_gift(gift):
 
 def getQuestionsFromText(txt):
     """Splits the text into question blocks"""
-    qs = txt.split('\n\n')
+    qs = txt.split('\\n\\n')
     qs = [x for x in qs if len(x) > 4]
 
     return qs
@@ -23,7 +25,7 @@ def getQuestionsFromText(txt):
 def cleanQuestion(question):
     """drop all lines with no letters or numbers and return question and answers separately"""
     try:
-        lines = question.split('\n')
+        lines = question.split('\\n')
         lines = [l for l in lines if len("".join(re.findall('\w*', l)))>0] # drop all lines with no letters or numbers
         q = lines[0]
         answers = lines[1:]
@@ -39,7 +41,21 @@ def prepareQuestions(question, name, tag):
 
     rights = [True for a in answers if a[0] == "#"]
     if not any(rights):
-        placeholder.text(f"""no right answers, please label the right answers with #\n\nWrong question:\n\n{question}""")
+        txt = """no right answers, please label the right answers with #\n\nWrong question:\n\n{}\n{}""".format(q, '\n'.join(answers))
+        with col2:
+            preview = st_ace(
+                            value = txt,
+                            language = "plain_text",
+                            theme = "iplastic",
+                            font_size = 14,
+                            show_gutter = False,
+                            show_print_margin = False,
+                            wrap = True,
+                            auto_update= True,
+                            readonly=True
+
+             )
+
         return None
     else:
         score = str(100 / question.count('#'))
@@ -84,14 +100,14 @@ def convert_to_plain(text):
         q, answers = cleanQuestion(question)
 
 
-        plain_text += f"### Question {idx+1}.: {q}  \n"
+        plain_text += f"Question {idx+1}.: {q}\n\n"
         for a in answers:
             if a[0] == "#":
-                plain_text += f"__Right Answer__: {a[1:]}  \n"
+                plain_text += f"Right Answer: {a[1:]}\n"
             else:
-                plain_text += f"Wrong Answer: {a}  \n"
+                plain_text += f"Wrong Answer: {a}\n"
 
-        plain_text += f"  \n  \n"
+        plain_text += f"  \n ------------------------------------------------------ \n"
 
     return plain_text
 
@@ -99,42 +115,93 @@ def convert_to_plain(text):
 st.header("Plain-text-multiple-choice test - to GIFT converter")
 st.markdown("The converter converts raw text to gift-formatted test questions which can be imported into moodle. Paste your test questions below and preview them on the right. Mark the right answers with '#', leave at least one empy row between questions. If everything seems alright, click the 'Convert to GIFT' button and the donwload link will appear. If it does not, check your text and the outputs for errors.")
 
-head1, head2, head3 = st.beta_columns([2,2, 8])
+head1, head2, head3, head4, head5, head6, head7 = st.beta_columns([2,2,2,1,1,1,3])
 
 with head1:
     name = st.text_input("Name: (e.g. date)", "name")
 
 with head2:
+
     tag = st.text_input("Tag: (e.g. chapter)", "tag")
+
+with head3:
+
+    radio = st.radio("Preview mode:", ['plain text', 'gift'])
+
+with head4:
+    font_size = st.slider("Font size", 5, 24, 14)
+
+with head6:
+    st.write(' ')
+    button = st.button("Convert to GIFT!")
+
+with head7:
+    st.write(' ')
+    link_placeholder = st.empty()
 
 col1, col2 = st.beta_columns([6,6])
 
 with col1:
     st.header("Paste / write your questions here:")
-    input = st.text_area(label = '', value="Which of the following numbers are prime numbers? (Example question, replace it with your questions)\n#3\n4\n12\n#17", height= 300)
+    input = st_ace(
+                    value = "Which of the following numbers are prime numbers? (Example question, replace it with your questions)\n#3\n4\n12\n#17",
+                    language = "plain_text",
+                    theme = "iplastic",
+                    font_size = font_size,
+                    show_gutter = True,
+                    show_print_margin = False,
+                    wrap = True,
+                    auto_update= True,
+                    key="ace-editor"
 
-    button = st.button("Convert to GIFT!")
+     )
+    # input = st.text_area(label = '', value="Which of the following numbers are prime numbers? (Example question, replace it with your questions)\n#3\n4\n12\n#17", height= 300)
 
-    link_placeholder = st.empty()
+
 
 with col2:
     st.header("Preview (plain text or GIFT-formatted):")
-    radio = st.radio("Select Format", ['plain text', 'gift'])
-    placeholder = st.empty()
-    placeholder.text("Which of the following numbers are prime numbers?\n3\n4\n12\n17")
 
 
 #### The app logic
 
+input = json.dumps(input, ensure_ascii = False)[1:-1]
+
 if radio == 'gift':
     gift = convert_to_gift(input, name, tag)
     if gift is not None:
-        placeholder.text(gift)
+        with col2:
+            preview = st_ace(
+                            value = gift,
+                            language = "plain_text",
+                            theme = "iplastic",
+                            font_size = font_size,
+                            show_gutter = False,
+                            show_print_margin = False,
+                            wrap = True,
+                            auto_update= True,
+                            readonly=True
+
+             )
+        # placeholder.write(preview)
 
 else:
     plain = convert_to_plain(input)
     if plain is not None:
-        placeholder.markdown(plain)
+        with col2:
+            preview = st_ace(
+                            value = plain,
+                            language = "plain_text",
+                            theme = "iplastic",
+                            font_size = font_size,
+                            show_gutter = False,
+                            show_print_margin = False,
+                            wrap = True,
+                            auto_update= True,
+                            readonly=True
+
+             )
+        # placeholder.write(preview)
 
 
 ### Convert and download
