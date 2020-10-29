@@ -97,7 +97,7 @@ def convert_to_plain(text):
 
 ### Layout
 st.header("Plain-text-multiple-choice test - to GIFT converter")
-st.markdown("The converter converts raw text to gift-formatted test questions which can be imported into moodle. Paste your test questions below and preview them on the right. Mark the right answers with '#', leave at least one empy row between questions. If everythings seem alright, click the 'Convert to GIFT' button and the donwload link will appear. If it does not, check your text and the outputs for errors.")
+st.markdown("The converter converts raw text to gift-formatted test questions which can be imported into moodle. Paste your test questions below and preview them on the right. Mark the right answers with '#', leave at least one empy row between questions. If everything seems alright, click the 'Convert to GIFT' button and the donwload link will appear. If it does not, check your text and the outputs for errors.")
 
 head1, head2, head3 = st.beta_columns([2,2, 8])
 
