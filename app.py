@@ -118,7 +118,7 @@ with col1:
     link_placeholder = st.empty()
 
 with col2:
-    st.header("Output preview:")
+    st.header("Preview (plain text or GIFT-formatted):")
     radio = st.radio("Select Format", ['plain text', 'gift'])
     placeholder = st.empty()
     placeholder.text("Which of the following numbers are prime numbers?\n3\n4\n12\n17")
