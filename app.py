@@ -86,7 +86,7 @@ def prepareQuestions(question, name, tag):
         return questionbody
 
 
-def convert2Gift(text, name, tag):
+def convert_to_gift(text, name, tag):
     """iterates through questions and converts them all to GIFT format"""
     qs = getQuestionsFromText(text)
 
@@ -99,7 +99,7 @@ def convert2Gift(text, name, tag):
         return gift
 
 
-def convert2Plain(text):
+def convert_to_plain(text):
     """converts question to a human-readable format, labeling rigth and wrong answers"""
 
     qs = getQuestionsFromText(text)
