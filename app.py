@@ -3,12 +3,24 @@ import base64
 import re
 from streamlit_ace import st_ace
 import json
+from docx import Document
+import io
+import base64
 
 st.set_page_config(page_title="Test converter", layout='wide')
 
 ########################################################
 #########  test converting functions ###################
 ########################################################
+
+
+def getText(filename):
+    """gets text from docx file"""
+    doc = Document(filename)
+    fullText = []
+    for para in doc.paragraphs:
+        fullText.append(para.text)
+    return '\n'.join(fullText)
 
 
 def download_gift(gift):
@@ -127,7 +139,7 @@ def convert_to_plain(text):
 
 st.header("Plain-text-multiple-choice test - to GIFT converter")
 st.markdown(
-    "The converter converts raw text to gift-formatted test questions which can be imported into moodle. Paste your test questions below and preview them on the right. Mark the right answers with '#', leave at least one empy row between questions. If everything seems alright, click the 'Convert to GIFT' button and the donwload link will appear. If it does not, check your text and the outputs for errors."
+    "The converter converts raw text to gift-formatted test questions which can be imported into moodle. Paste your test questions below and preview them on the right. Alternatively, you can upload your docx file with questions. Mark the right answers with '#' and leave at least one empty row between questions. If everything seems alright, click the 'Convert to GIFT' button and the donwload link will appear. If it does not, check your text and the outputs for errors."
 )
 
 #####   top row conatining the controls
@@ -157,15 +169,23 @@ with head7:
     st.write(' ')
     link_placeholder = st.empty()
 
+text  = "Which of the following numbers are prime numbers? (Example question, replace it with your questions)\n#3\n4\n12\n#17"
+
+uploaded = st.file_uploader("upload your docx file here", type = "docx")
+if uploaded is not None:
+    data = uploaded.read()
+    text = getText(io.BytesIO(data))
+ 
 ##  columns for the editors
 
 col1, col2 = st.beta_columns([6, 6])
 
+
 with col1:
-    st.header("Paste / write your questions here:")
+   
+    st.header("Paste / write / edit your questions here:")
     input = st_ace(
-        value=
-        "Which of the following numbers are prime numbers? (Example question, replace it with your questions)\n#3\n4\n12\n#17",
+        value=text, 
         language="plain_text",
         theme="iplastic",
         font_size=font_size,
@@ -173,10 +193,10 @@ with col1:
         show_print_margin=False,
         wrap=True,
         auto_update=True,
-        key="ace-editor")
+            )
 
-with col2:
-    st.header("Preview (plain text or GIFT-formatted):")
+    with col2:
+        st.header("Preview (plain text or GIFT-formatted):")
 
 input = json.dumps(
     input, ensure_ascii=False
@@ -220,3 +240,6 @@ if button:
     if gift is not None:
         href = download_gift(gift)
         link_placeholder.markdown(href, unsafe_allow_html=True)
+
+
+
