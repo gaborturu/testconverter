@@ -63,20 +63,8 @@ def prepareQuestions(question, name, tag):
 
     rights = [True for a in answers if a[0] == "#"]
     if not any(rights):
-        txt = """no right answers, please label the right answers with #\n\nWrong question:\n\n{}\n{}""".format(
-            q, '\n'.join(answers))
-        with col2:
-            preview = st_ace(value=txt,
-                             language="plain_text",
-                             theme="iplastic",
-                             font_size=14,
-                             show_gutter=False,
-                             show_print_margin=False,
-                             wrap=True,
-                             auto_update=True,
-                             readonly=True)
+        return False, question
 
-        return None
     else:
         score = str(100 / question.count('#'))
 
@@ -95,7 +83,7 @@ def prepareQuestions(question, name, tag):
 
         questionbody = f"""// name: {name}\n// [tag:{tag}]\n::{name}::[html]<p>\\n{q}<br></p>{{\n{answertxt}}}\n\n\n"""
 
-        return questionbody
+        return True, questionbody
 
 
 def convert_to_gift(text, name, tag):
@@ -104,11 +92,19 @@ def convert_to_gift(text, name, tag):
 
     qs = [prepareQuestions(q, name, tag) for q in qs]
 
-    if None not in qs:
+    valids = [q[0] for q in qs]
+    qs = [q[1] for q in qs]
+
+
+    if False not in valids:
 
         gift = "".join(qs)
 
         return gift
+    
+    else:
+        idx = valids.index(False)
+        return (qs[idx],)
 
 
 def convert_to_plain(text):
@@ -143,29 +139,25 @@ st.markdown(
 )
 
 #####   top row conatining the controls
+font_size = 16
 
 head1, head2, head3, head4, head5, head6, head7 = st.beta_columns(
-    [2, 2, 2, 1, 1, 1, 3])
+    [2, 2, 2, 1, 3, 1, 1])
 
 with head1:
     name = st.text_input("Name: (e.g. date)", "name")
 
 with head2:
-
     tag = st.text_input("Tag: (e.g. chapter)", "tag")
 
 with head3:
-
     radio = st.radio("Preview mode:", ['plain text', 'gift'])
 
 with head4:
-    font_size = st.slider("Font size", 5, 24, 14)
-
-with head6:
     st.write(' ')
     button = st.button("Convert to GIFT!")
 
-with head7:
+with head5:
     st.write(' ')
     link_placeholder = st.empty()
 
@@ -204,32 +196,22 @@ input = json.dumps(
   -1]  # get the text from the editor. First and last strings are quotation marks in the json.dumps
 
 if radio == 'gift':
-    gift = convert_to_gift(input, name, tag)
-    if gift is not None:
-        with col2:
-            preview = st_ace(value=gift,
-                             language="plain_text",
-                             theme="iplastic",
-                             font_size=font_size,
-                             show_gutter=False,
-                             show_print_margin=False,
-                             wrap=True,
-                             auto_update=True,
-                             readonly=True)
-
+    txt = convert_to_gift(input, name, tag)
+    if type(txt) is tuple:
+        txt = "No right answers in this question:\n\n{}".format(txt[0].replace('\\n', '\n'))
 else:
-    plain = convert_to_plain(input)
-    if plain is not None:
-        with col2:
-            preview = st_ace(value=plain,
-                             language="plain_text",
-                             theme="iplastic",
-                             font_size=font_size,
-                             show_gutter=False,
-                             show_print_margin=False,
-                             wrap=True,
-                             auto_update=True,
-                             readonly=True)
+    txt = convert_to_plain(input)
+        
+with col2:
+    preview = st_ace(value=txt,
+                    language="plain_text",
+                    theme="iplastic",
+                    font_size=font_size,
+                    show_gutter=False,
+                    show_print_margin=False,
+                    wrap=True,
+                    auto_update=True,
+                    readonly=True)
 
 ### Convert and download options
 
@@ -237,9 +219,11 @@ link_placeholder.empty()
 
 if button:
     gift = convert_to_gift(input, name, tag)
-    if gift is not None:
+    if type(gift) is not tuple:
         href = download_gift(gift)
         link_placeholder.markdown(href, unsafe_allow_html=True)
 
+    else:
+        link_placeholder.text("check the gift preview for errors")
 
 
