@@ -36,6 +36,13 @@ def download_gift(gift):
 
 def getQuestionsFromText(txt):
     """Splits the text into question blocks"""
+    # replace =, > and > signs
+    txt = txt.replace("=", "\=")
+    txt = txt.replace(">", "&gt")
+    txt = txt.replace("<", "&lt")
+
+
+
     qs = txt.split('\\n\\n')
     qs = [x for x in qs if len(x) > 4]
 
