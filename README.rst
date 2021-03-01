@@ -5,7 +5,7 @@ At this point, only multiple-choice questions are supported.
 
 Syntax:
 
-first raw is always the question, the next rows are the possible answers. The right answers are labeled with # at the beginning of the line.
+first row is always the question, the next rows are the possible answers. The right answers are labeled with # at the beginning of the line.
 
 The questions are separated with empty lines
 
