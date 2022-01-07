@@ -1,4 +1,4 @@
-FROM python:3.6-slim-buster
+FROM python:3.6
 WORKDIR /home
 EXPOSE 8080
 COPY requirements.txt ./requirements.txt
